@@ -1,0 +1,45 @@
+name: Playwright CI
+
+# Trigger workflow on push or pull request
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'  # Runs every day at 2:00 AM UTC
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Step 1: Checkout code from GitHub
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # Step 2: Set up Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '20'
+
+    # Step 3: Install dependencies
+    - name: Install dependencies
+      run: npm install
+
+    # Step 4: Install Playwright browsers
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    # Step 5: Run tests
+    - name: Run Playwright tests
+      run: npx playwright test --reporter=github
+
+    # Optional: Upload test results as artifact
+    - name: Upload Test Results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: playwright-results
+        path: playwright-report/
