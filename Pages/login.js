@@ -30,14 +30,18 @@ exports.login = class login {
     }
 
 
-   async loginToApp(email, password) {
-    // Ensure the page is fully loaded
-    await this.page.waitForLoadState('networkidle');
-    // Fill credentials and click login
-    await this.page.fill(this.username, email);
-    await this.page.fill(this.password, password);
-    await this.page.click(this.loginButton);
-}
+    async loginToApp(email, password) {
+        // Ensure the page is fully loaded
+        await this.page.waitForLoadState('networkidle');
+
+        await this.page.waitForSelector('#email', { state: 'visible', timeout: 60000 });
+        await this.page.fill('#email', email);
+
+        // Fill credentials and click login
+        // await this.page.fill(this.username, email);
+        await this.page.fill(this.password, password);
+        await this.page.click(this.loginButton);
+    }
 
     async CMSloginToApp(email, password) {
         await this.page.fill(this.CMSusername, email);
