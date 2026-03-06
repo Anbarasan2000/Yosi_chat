@@ -11,19 +11,31 @@ on:
 
 jobs:
   test:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Windows, X64]
+
     steps:
-      - uses: actions/checkout@v4
+      # 1️⃣ Checkout repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Install Node.js dependencies
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 20
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
+      # 3️⃣ Install Playwright browsers
+      - name: Install Playwright Browsers
         run: npx playwright install
 
-      - name: Run Playwright tests
-        run: npx playwright test
+      # 4️⃣ Run Playwright tests
+      - name: Run Playwright Tests
+        run: npx playwright test --reporter=html
 
+      # 5️⃣ Upload Playwright HTML report
       - name: Upload Playwright Report
         if: always()
         uses: actions/upload-artifact@v4
@@ -31,11 +43,16 @@ jobs:
           name: playwright-report
           path: playwright-report/
 
+      # 6️⃣ Send Slack Notification
       - name: Send Slack Notification
-        if: failure()
+        if: always()
         run: |
-          curl -X POST -H 'Content-type: application/json' \
-          --data '{
-            "text":"❌ Playwright Tests Failed in GitHub Actions\nRepo: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-          }' \
+          if [ "${{ job.status }}" == "success" ]; then
+            STATUS="✅ Playwright Tests Passed"
+          else
+            STATUS="❌ Playwright Tests Failed"
+          fi
+
+          curl -X POST -H "Content-type: application/json" \
+          --data "{\"text\":\"$STATUS\nRepo: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
           ${{ secrets.SLACK_WEBHOOK_URL }}
