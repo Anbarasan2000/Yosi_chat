@@ -1,0 +1,11 @@
+﻿{
+  "agentId": 2,
+  "agentName": "YS054",
+  "poolId": 1,
+  "poolName": "Default",
+  "serverUrl": "https://pipelinesghubeus4.actions.githubusercontent.com/PtinZfjCuIWJ6Bdx1cEzJY10YBwmSvttTUzzVTQ867x8blVYmJ/",
+  "gitHubUrl": "https://github.com/Anbarasan2000/Yosi_chat",
+  "workFolder": "_work",
+  "useV2Flow": true,
+  "serverUrlV2": "https://broker.actions.githubusercontent.com/"
+}
