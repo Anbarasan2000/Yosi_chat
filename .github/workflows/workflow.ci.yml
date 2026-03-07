@@ -74,15 +74,22 @@ jobs:
     steps:
       - name: Send Slack Test Message
         shell: powershell
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
+          $webhook = "PASTE_YOUR_SLACK_WEBHOOK_URL_HERE"
+
           $payload = @{
-            text = "🚀 Slack Test Message from GitHub Actions"
+          text = "🚀 Slack test message from GitHub Actions"
           } | ConvertTo-Json -Compress
 
-          Invoke-RestMethod `
-            -Uri $env:SLACK_WEBHOOK_URL `
-            -Method Post `
-            -Body $payload `
-            -ContentType "application/json"
+          Invoke-RestMethod -Uri $webhook -Method Post -Body $payload -ContentType "application/json"
+
+      - name: Debug Slack URL
+        shell: powershell
+        env:
+         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if (-not $env:SLACK_WEBHOOK_URL) {
+                  Write-Host "Slack URL is EMPTY"
+          } else {
+                Write-Host "Slack URL exists"
+          }      
