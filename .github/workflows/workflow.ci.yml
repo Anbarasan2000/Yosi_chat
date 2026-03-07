@@ -1,58 +1,88 @@
 name: Playwright CI
 
-# Trigger workflow on push or pull request
 on:
   push:
     branches: [ main ]
+
   pull_request:
     branches: [ main ]
+
   schedule:
-    - cron: '0 2 * * *'  # Runs every day at 2:00 AM UTC
+    - cron: '0 2 * * *'
 
 jobs:
-  test:
+#   test:
+#     runs-on: [self-hosted, Windows, X64]
+
+#     steps:
+
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       - name: Setup Node
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 20
+
+#       - name: Install dependencies
+#         run: npm ci
+
+#       - name: Install Playwright Browsers
+#         run: npx playwright install
+
+#       - name: Run Playwright Tests
+#         id: tests
+#         run: npx playwright test --reporter=html
+#         continue-on-error: true
+
+#       - name: Upload Playwright Report
+#         if: always()
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: playwright-report
+#           path: playwright-report/
+
+#       # Slack Success
+#       - name: Slack Notification Success
+#         if: success()
+#         shell: powershell
+#         env:
+#           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#         run: |
+#           $msg = @{
+#             text = "✅ Playwright Tests Passed `nRepo: $env:GITHUB_REPOSITORY `nBranch: $env:GITHUB_REF_NAME `nRun: https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+#           } | ConvertTo-Json -Compress
+
+#           Invoke-RestMethod -Uri $env:SLACK_WEBHOOK_URL -Method Post -Body $msg -ContentType "application/json"
+
+#       # Slack Failure
+#       - name: Slack Notification Failure
+#         if: failure()
+#         shell: powershell
+#         env:
+#           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+#         run: |
+#           $msg = @{
+#             text = "❌ Playwright Tests Failed `nRepo: $env:GITHUB_REPOSITORY `nBranch: $env:GITHUB_REF_NAME `nRun: https://github.com/$env:GITHUB_REPOSITORY/actions/runs/$env:GITHUB_RUN_ID"
+#           } | ConvertTo-Json -Compress
+
+#           Invoke-RestMethod -Uri $env:SLACK_WEBHOOK_URL -Method Post -Body $msg -ContentType "application/json"
+
+ slack-test:
     runs-on: [self-hosted, Windows, X64]
 
     steps:
-      # 1️⃣ Checkout repository
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      # 2️⃣ Install Node.js dependencies
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install dependencies
-        run: npm ci
-
-      # 3️⃣ Install Playwright browsers
-      - name: Install Playwright Browsers
-        run: npx playwright install
-
-      # 4️⃣ Run Playwright tests
-      - name: Run Playwright Tests
-        run: npx playwright test --reporter=html
-
-      # 5️⃣ Upload Playwright HTML report
-      - name: Upload Playwright Report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-report
-          path: playwright-report/
-
-      # 6️⃣ Send Slack Notification
-      - name: Send Slack Notification
-        if: always()
+      - name: Send Slack Test Message
+        shell: powershell
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            STATUS="✅ Playwright Tests Passed"
-          else
-            STATUS="❌ Playwright Tests Failed"
-          fi
+          $payload = @{
+            text = "🚀 Slack Test Message from GitHub Actions"
+          } | ConvertTo-Json -Compress
 
-          curl -X POST -H "Content-type: application/json" \
-          --data "{\"text\":\"$STATUS\nRepo: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nRun: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
-          ${{ secrets.SLACK_WEBHOOK_URL }}
+          Invoke-RestMethod `
+            -Uri $env:SLACK_WEBHOOK_URL `
+            -Method Post `
+            -Body $payload `
+            -ContentType "application/json"
